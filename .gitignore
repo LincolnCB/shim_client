@@ -1,0 +1,12 @@
+__pycache__
+.venv
+csv_wfms/*
+!csv_wfms/.gitkeep
+data/*
+!data/.gitkeep
+inputs/*
+!inputs/.gitkeep
+npy/*
+!npy/.gitkeep
+waveforms/*
+!waveforms/.gitkeep
