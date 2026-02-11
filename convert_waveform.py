@@ -18,6 +18,7 @@ DUMP_NPY_FILENAME = None  # Set to None for auto-naming, or provide a string
 
 # --- Prompt Defaults ---
 DEFAULT_DO_ADC_READOUT = True  # Create ADC readout command file?
+DEFAULT_ADC_SAMPLE_RATE_KSPS = 62.5  # Default ADC sample rate in ksps for prompt
 DEFAULT_HAS_TIME_VECTOR = True  # Does the file include a time vector column?
 DEFAULT_SPI_CLOCK_FREQ_MHZ = 20  # SPI clock frequency in MHz
 DEFAULT_SAMPLE_RATE_KSPS = None  # Sample rate in ksps (None means prompt required)
@@ -25,7 +26,7 @@ DEFAULT_ENABLE_COMPRESSION = True  # Enable sample compression (skip duplicate s
 DEFAULT_CREATE_ZERO_WAVEFORM = False  # Create equivalent zeroed waveform?
 DEFAULT_ZERO_AT_END = False  # Zero at the end?
 DEFAULT_EXTRA_ZERO_TIME_MS = 0  # Time (ms) to wait before final zero sample
-DEFAULT_ADC_EXTRA_TIME_MS = 4  # Extra sample time after DAC completes (ms)
+DEFAULT_ADC_EXTRA_TIME_MS = 0.5  # Extra sample time after DAC completes (ms)
 
 # ============================================================================
 import sys
@@ -390,7 +391,7 @@ def write_adc_readout_file(filename, durations_cycles, adc_sample_rate_ksps, ext
 
 def get_adc_readout_parameters(dac_params):
   print("\n--- ADC Readout Parameters ---")
-  default_adc_rate = dac_params['sample_rate'] if dac_params['sample_rate'] is not None else 50
+  default_adc_rate = dac_params['sample_rate'] if dac_params['sample_rate'] is not None else DEFAULT_ADC_SAMPLE_RATE_KSPS
   while True:
     adc_sample_rate = prompt("ADC sample rate", unit="ksps", default=default_adc_rate, type_=float)
     if adc_sample_rate > 0:

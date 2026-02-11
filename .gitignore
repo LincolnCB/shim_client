@@ -10,3 +10,4 @@ npy/*
 !npy/.gitkeep
 waveforms/*
 !waveforms/.gitkeep
+!waveforms/zero_waveform_gen.ipynb
