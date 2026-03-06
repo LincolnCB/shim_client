@@ -10,4 +10,7 @@ npy/*
 !npy/.gitkeep
 waveforms/*
 !waveforms/.gitkeep
+fieldmaps/*
+!fieldmaps/.gitkeep
 !waveforms/zero_waveform_gen.ipynb
+LOCAL*

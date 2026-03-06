@@ -171,3 +171,76 @@ def import_npy(filename, has_time, sample_rate=None):
     padding = np.zeros((data.shape[0], n_bd * 8 - channels))
     data = np.concatenate([data, padding], axis=1)
   return time, data
+
+def list_mat_object(obj, name="mat_data", depth=0, max_depth=12, max_items=1000, _counter=None):
+  if _counter is None:
+    _counter = {"n": 0}
+
+  indent = " " * depth
+  if _counter["n"] >= max_items:
+    print(f"{indent}{name}: <stopped after {max_items} items>")
+    return
+  _counter["n"] += 1
+
+  if depth > max_depth:
+    print(f"{indent}{name}: <max depth reached>")
+    return
+
+  if hasattr(obj, "_fieldnames"):
+    fields = list(getattr(obj, "_fieldnames", []))
+    print(f"{indent}{name}: mat_struct fields={fields}")
+    for field in fields:
+      list_mat_object(getattr(obj, field), f"{name}.{field}", depth + 1, max_depth, max_items, _counter)
+    return
+
+  if isinstance(obj, dict):
+    keys = list(obj.keys())
+    print(f"{indent}{name}: dict keys={keys}")
+    for key, value in obj.items():
+      list_mat_object(value, f"{name}[{repr(key)}]", depth + 1, max_depth, max_items, _counter)
+    return
+
+  if isinstance(obj, np.ndarray):
+    print(f"{indent}{name}: ndarray dtype={obj.dtype}, shape={obj.shape}")
+    if obj.dtype == object:
+      for idx in np.ndindex(obj.shape):
+        list_mat_object(obj[idx], f"{name}{idx}", depth + 1, max_depth, max_items, _counter)
+    return
+
+  if isinstance(obj, (list, tuple)):
+    print(f"{indent}{name}: {type(obj).__name__} len={len(obj)}")
+    for i, item in enumerate(obj):
+      list_mat_object(item, f"{name}[{i}]", depth + 1, max_depth, max_items, _counter)
+    return
+
+  print(f"{indent}{name}: {type(obj).__name__} value={repr(obj)[:140]}")
+
+def extract_array_from_mat(obj, key_path):
+  current = obj
+  for key in key_path:
+    if isinstance(current, dict):
+      current = current[key]
+    elif isinstance(current, np.ndarray):
+      if isinstance(key, tuple):
+        current = current[key]
+      elif isinstance(key, int):
+        current = current[key]
+      elif isinstance(key, list):
+        current = current[tuple(key)]
+      else:
+        print(
+          f"Cannot index ndarray with key {repr(key)} (type {type(key).__name__}). "
+          "Use int, tuple, or list for ndarray indexing."
+        )
+        sys.exit(1)
+    elif hasattr(current, "_fieldnames"):
+      current = getattr(current, key)
+    else:
+      print(f"Cannot access key '{key}': current object is {type(current).__name__}")
+      sys.exit(1)
+
+  if not isinstance(current, np.ndarray):
+    print(f"Error: Expected ndarray but got {type(current).__name__} with value {repr(current)[:140]}")
+    sys.exit(1)
+
+  return current
